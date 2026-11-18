@@ -42,6 +42,8 @@ Expo Go. The `android/` and `ios/` folders are generated and not committed.
 ```sh
 npm install
 npm run android        # builds and installs the dev build, then starts Metro
+npm run web            # the app in a browser, through react-native-web
+npm run build:web      # static site in dist/
 npm start              # later runs: Metro only, reusing the installed build
 npm run lint
 npm run typecheck
@@ -51,8 +53,20 @@ npm test
 Start the emulator first with `emulator -avd Pixel_API_36`, or from Android
 Studio's Device Manager. iOS builds need a Mac.
 
+Targets: Android, iOS and web. `@maplibre/maplibre-react-native` does not
+render on web, so the map needs a web version there (see the map issues).
+
 ## CI
 
 `.github/workflows/ci.yml` runs lint, typecheck and Jest on pushes to `main`
 and on pull requests. On `main` (and on demand from the Actions tab) it also
-builds the Android debug APK and uploads it as a workflow artifact.
+builds the Android debug APK and uploads it as a workflow artifact. The web
+build runs every time.
+
+## GitHub Pages
+
+`.github/workflows/pages.yml` builds the web app and publishes it to
+`https://calemccammon.github.io/react-native-weather/`. It runs only when started by hand
+from the Actions tab. On the free plan Pages needs a public repository, so it
+will fail until this one is public. The
+base path `/react-native-weather` is set in `app.json` (`experiments.baseUrl`).

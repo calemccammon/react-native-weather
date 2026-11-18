@@ -21,11 +21,16 @@
       "package": "com.calemccammon.weather.rn"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
     },
     "plugins": [
       "@maplibre/maplibre-react-native",
       "expo-location"
-    ]
+    ],
+    "experiments": {
+      "baseUrl": "/react-native-weather"
+    }
   }
 }
