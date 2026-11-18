@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   check:
-    name: Lint, typecheck and test
+    name: Format, lint, typecheck and test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -25,6 +25,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test -- --ci --passWithNoTests

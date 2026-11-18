@@ -25,10 +25,7 @@
       "bundler": "metro",
       "output": "single"
     },
-    "plugins": [
-      "@maplibre/maplibre-react-native",
-      "expo-location"
-    ],
+    "plugins": ["@maplibre/maplibre-react-native", "expo-location"],
     "experiments": {
       "baseUrl": "/react-native-weather"
     }

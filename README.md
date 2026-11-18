@@ -20,16 +20,16 @@ The work is laid out as [milestones](../../milestones) and
 
 ## Libraries already added
 
-| Purpose | Package |
-| --- | --- |
-| Navigation | `@react-navigation/native`, `@react-navigation/native-stack` |
-| Server data and caching | `@tanstack/react-query` |
-| App state | `zustand` |
-| Saved places and settings | `@react-native-async-storage/async-storage` |
-| Device location | `expo-location` |
-| Map | `@maplibre/maplibre-react-native` |
-| Tests | `jest`, `jest-expo`, `@testing-library/react-native` |
-| Lint | `eslint`, `eslint-config-expo` |
+| Purpose                   | Package                                                      |
+| ------------------------- | ------------------------------------------------------------ |
+| Navigation                | `@react-navigation/native`, `@react-navigation/native-stack` |
+| Server data and caching   | `@tanstack/react-query`                                      |
+| App state                 | `zustand`                                                    |
+| Saved places and settings | `@react-native-async-storage/async-storage`                  |
+| Device location           | `expo-location`                                              |
+| Map                       | `@maplibre/maplibre-react-native`                            |
+| Tests                     | `jest`, `jest-expo`, `@testing-library/react-native`         |
+| Lint                      | `eslint`, `eslint-config-expo`                               |
 
 Any of these can be swapped; nothing depends on them yet. Add packages with
 `npx expo install <name>` so versions match the Expo SDK (58).
@@ -45,7 +45,8 @@ npm run android        # builds and installs the dev build, then starts Metro
 npm run web            # the app in a browser, through react-native-web
 npm run build:web      # static site in dist/
 npm start              # later runs: Metro only, reusing the installed build
-npm run lint
+npm run lint           # ESLint; any warning fails
+npm run format:check   # Prettier; `npm run format` fixes
 npm run typecheck
 npm test
 ```
@@ -58,7 +59,7 @@ render on web, so the map needs a web version there (see the map issues).
 
 ## CI
 
-`.github/workflows/ci.yml` runs lint, typecheck and Jest on pushes to `main`
+`.github/workflows/ci.yml` runs the Prettier check, ESLint, typecheck and Jest on pushes to `main`
 and on pull requests. On `main` (and on demand from the Actions tab) it also
 builds the Android debug APK and uploads it as a workflow artifact. The web
 build runs every time.
