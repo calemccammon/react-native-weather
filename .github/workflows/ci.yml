@@ -28,7 +28,7 @@ jobs:
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test -- --ci --passWithNoTests
+      - run: npm test -- --ci
 
   build-web:
     name: Build web

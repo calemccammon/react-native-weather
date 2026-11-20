@@ -1,8 +1,7 @@
 import { registerRootComponent } from 'expo';
 
-import App from './App';
+import { App } from './src/App';
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
+// Registers the app with React Native and sets up the environment, whether
+// it runs in a development build, a release build or a browser.
 registerRootComponent(App);

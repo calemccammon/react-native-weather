@@ -1,18 +1,17 @@
 {
   "expo": {
-    "name": "react-native-weather",
+    "name": "Weather",
     "slug": "react-native-weather",
     "version": "1.0.0",
-    "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.calemccammon.weather.rn"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#2E6FB7",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -25,7 +24,7 @@
       "bundler": "metro",
       "output": "single"
     },
-    "plugins": ["@maplibre/maplibre-react-native", "expo-location"],
+    "plugins": ["@maplibre/maplibre-react-native", "expo-localization", "expo-font"],
     "experiments": {
       "baseUrl": "/react-native-weather"
     }
