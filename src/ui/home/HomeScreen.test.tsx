@@ -1,4 +1,11 @@
-import { fireEvent, render, screen, userEvent, waitFor } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from '@testing-library/react-native';
 import { act } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { PaperProvider } from 'react-native-paper';
@@ -130,6 +137,10 @@ describe('search', () => {
     await user.type(searchBar(), 'zzzz');
 
     expect(await screen.findByText('Nothing found for "zzzz"')).toBeOnTheScreen();
+    // A screen reader is told, without the user having to go looking.
+    const status = screen.getByTestId('search-status');
+    expect(status).toHaveProp('aria-live', 'polite');
+    expect(within(status).getByText('Nothing found for "zzzz"')).toBeOnTheScreen();
   });
 
   it('says what went wrong, and finds the place on another try', async () => {
@@ -180,12 +191,15 @@ describe('forecast', () => {
     await select();
     await act(async () => repository.forecasts[0]?.reject(new WeatherError('timeout')));
 
-    expect(screen.getByText('The weather service took too long to answer.')).toBeOnTheScreen();
+    // Failing and loading are both read out by a screen reader as they happen.
+    const status = () => within(screen.getByTestId('forecast-status'));
+    expect(screen.getByTestId('forecast-status')).toHaveProp('aria-live', 'polite');
+    expect(status().getByText('The weather service took too long to answer.')).toBeOnTheScreen();
     expect(screen.queryByText('This week')).not.toBeOnTheScreen();
 
     await user.press(screen.getByText('Try again'));
 
-    expect(screen.getByLabelText('Loading the forecast')).toBeOnTheScreen();
+    expect(status().getByLabelText('Loading the forecast')).toBeOnTheScreen();
     expect(
       screen.queryByText('The weather service took too long to answer.'),
     ).not.toBeOnTheScreen();

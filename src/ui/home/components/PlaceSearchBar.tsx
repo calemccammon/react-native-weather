@@ -1,16 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackHandler, Keyboard, ScrollView, StyleSheet, View } from 'react-native';
-import {
-  Button,
-  Icon,
-  List,
-  ProgressBar,
-  Searchbar,
-  Surface,
-  Text,
-  useTheme,
-} from 'react-native-paper';
+import { Button, List, ProgressBar, Searchbar, Surface } from 'react-native-paper';
 
 import {
   useHomeState,
@@ -20,6 +11,7 @@ import {
 } from '../viewModels/ViewModelsContext';
 import { shapes, spacing } from '../../core/tokens';
 import type { SearchState } from '../models/searchState';
+import { Message } from './Message';
 
 interface PlaceSearchBarProps {
   /** Whether the results are showing under the bar. */
@@ -124,13 +116,48 @@ export function PlaceSearchBar(props: PlaceSearchBarProps) {
 }
 
 function SearchResults(props: { maxHeight: number; onChoose: (index: number) => void }) {
+  const state: SearchState = useSearchState();
+
+  if (state.kind !== 'results') {
+    // What is happening is read out as it changes: searching, then what came
+    // of it.
+    return (
+      <View testID="search-status" aria-live="polite">
+        <SearchStatus state={state} />
+      </View>
+    );
+  }
+  return (
+    <ScrollView style={{ maxHeight: props.maxHeight }} keyboardShouldPersistTaps="handled">
+      {state.places.map((place, index) => (
+        <List.Item
+          key={`${place.latitude},${place.longitude},${place.title}`}
+          title={place.title}
+          description={place.subtitle === '' ? undefined : place.subtitle}
+          left={(item) => <List.Icon {...item} icon="map-marker-outline" />}
+          onPress={() => props.onChoose(index)}
+        />
+      ))}
+    </ScrollView>
+  );
+}
+
+/** Every state of a search but its results. */
+function SearchStatus(props: { state: Exclude<SearchState, { kind: 'results' }> }) {
   const { t } = useTranslation();
   const search = useSearchViewModel();
-  const state: SearchState = useSearchState();
+  const { state } = props;
 
   switch (state.kind) {
     case 'idle':
-      return <Message icon="map-search-outline" text={t('search.prompt')} />;
+      return (
+        <Message
+          icon="map-search-outline"
+          tone="muted"
+          text={t('search.prompt')}
+          style={styles.message}
+        />
+      );
     case 'loading':
       return (
         <View accessible accessibilityLabel={t('search.searching')}>
@@ -139,13 +166,20 @@ function SearchResults(props: { maxHeight: number; onChoose: (index: number) => 
       );
     case 'empty':
       return (
-        <Message icon="magnify-close" text={t('search.nothingFound', { query: state.query })} />
+        <Message
+          icon="magnify-close"
+          tone="muted"
+          text={t('search.nothingFound', { query: state.query })}
+          style={styles.message}
+        />
       );
     case 'failed':
       return (
         <Message
           icon="cloud-off-outline"
+          tone="muted"
           text={state.message}
+          style={styles.message}
           action={
             <Button mode="text" onPress={search.retry}>
               {t('tryAgain')}
@@ -153,47 +187,16 @@ function SearchResults(props: { maxHeight: number; onChoose: (index: number) => 
           }
         />
       );
-    case 'results':
-      return (
-        <ScrollView style={{ maxHeight: props.maxHeight }} keyboardShouldPersistTaps="handled">
-          {state.places.map((place, index) => (
-            <List.Item
-              key={`${place.latitude},${place.longitude},${place.title}`}
-              title={place.title}
-              description={place.subtitle === '' ? undefined : place.subtitle}
-              left={(item) => <List.Icon {...item} icon="map-marker-outline" />}
-              onPress={() => props.onChoose(index)}
-            />
-          ))}
-        </ScrollView>
-      );
   }
 }
 
-function Message(props: { icon: string; text: string; action?: ReactNode }) {
-  const theme = useTheme();
-  return (
-    <View style={styles.message}>
-      <Icon source={props.icon} size={24} color={theme.colors.onSurfaceVariant} />
-      <Text variant="bodyLarge" style={[styles.fill, { color: theme.colors.onSurfaceVariant }]}>
-        {props.text}
-      </Text>
-      {props.action}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  fill: { flex: 1 },
   results: {
     marginTop: spacing.sm,
     borderRadius: shapes.extraLarge,
     overflow: 'hidden',
   },
   message: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.lg,
   },

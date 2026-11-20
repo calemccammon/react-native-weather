@@ -17,3 +17,9 @@ export const breakpoints = {
 
 /** The colour the whole palette is generated from. */
 export const seedColor = '#2E6FB7';
+
+/** Icon sizes: beside a line of text, and beside the current temperature. */
+export const iconSizes = { row: 24, current: 56 } as const;
+
+/** The least height and width Material asks of anything pressed. */
+export const minTouchTarget = 48;

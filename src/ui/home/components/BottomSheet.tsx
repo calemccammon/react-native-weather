@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-import { shapes, spacing } from '../../core/tokens';
+import { minTouchTarget, shapes } from '../../core/tokens';
 
 /**
  * The sheet's resting heights, as fractions of the screen: tucked away, at
@@ -126,9 +126,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: -2 },
   },
+  // As high as anything pressed should be, with the handle in the middle.
   handleArea: {
     alignItems: 'center',
-    paddingVertical: spacing.md + spacing.xs,
+    justifyContent: 'center',
+    height: minTouchTarget,
   },
   handle: {
     width: handle.width,

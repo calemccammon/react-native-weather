@@ -4,9 +4,10 @@ import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
 import { Button, Icon, ProgressBar, SegmentedButtons, Text, useTheme } from 'react-native-paper';
 
 import { useHomeState, useHomeViewModel } from '../viewModels/ViewModelsContext';
-import { shapes, spacing } from '../../core/tokens';
+import { iconSizes, minTouchTarget, shapes, spacing } from '../../core/tokens';
 import type { CurrentUiModel, DayUiModel, ForecastUiModel } from '../models/forecastUiModel';
 import type { UnitsUiModel } from '../models/unitsUiModel';
+import { Message } from './Message';
 
 /**
  * Current conditions and the week ahead for the selected place. It scrolls,
@@ -44,22 +45,27 @@ export function ForecastPanel(props: { topPadding?: number; bottomPadding?: numb
         </View>
       )}
 
-      {forecast.kind === 'idle' && (
-        <Message icon="gesture-tap-hold" color={theme.colors.primary} text={t('forecast.hint')} />
-      )}
+      {/* What is happening is read out as it changes: loading, then failed. */}
+      {forecast.kind !== 'loaded' && (
+        <View testID="forecast-status" aria-live="polite" style={styles.status}>
+          {forecast.kind === 'idle' && (
+            <Message icon="gesture-tap-hold" tone="hint" text={t('forecast.hint')} />
+          )}
 
-      {forecast.kind === 'loading' && (
-        <View style={styles.loading} accessible accessibilityLabel={t('forecast.loading')}>
-          <ProgressBar indeterminate />
-        </View>
-      )}
+          {forecast.kind === 'loading' && (
+            <View style={styles.loading} accessible accessibilityLabel={t('forecast.loading')}>
+              <ProgressBar indeterminate />
+            </View>
+          )}
 
-      {forecast.kind === 'failed' && (
-        <View style={styles.failure}>
-          <Message icon="cloud-off-outline" color={theme.colors.error} text={forecast.message} />
-          <Button mode="contained-tonal" icon="refresh" onPress={viewModel.retryForecast}>
-            {t('tryAgain')}
-          </Button>
+          {forecast.kind === 'failed' && (
+            <>
+              <Message icon="cloud-off-outline" tone="error" text={forecast.message} />
+              <Button mode="contained-tonal" icon="refresh" onPress={viewModel.retryForecast}>
+                {t('tryAgain')}
+              </Button>
+            </>
+          )}
         </View>
       )}
 
@@ -67,17 +73,6 @@ export function ForecastPanel(props: { topPadding?: number; bottomPadding?: numb
         <Loaded forecast={forecast.forecast} units={units} onUnitsChange={viewModel.setUnits} />
       )}
     </ScrollView>
-  );
-}
-
-function Message(props: { icon: string; color: string; text: string }) {
-  return (
-    <View style={styles.message}>
-      <Icon source={props.icon} size={iconSize.row} color={props.color} />
-      <Text variant="bodyLarge" style={styles.fill}>
-        {props.text}
-      </Text>
-    </View>
   );
 }
 
@@ -101,7 +96,6 @@ function Loaded(props: {
         </Text>
         <View accessibilityRole="radiogroup" accessibilityLabel={t('units.label')}>
           <SegmentedButtons
-            density="small"
             style={styles.units}
             value={props.units}
             onValueChange={(value) => props.onUnitsChange(value as UnitsUiModel)}
@@ -109,11 +103,13 @@ function Loaded(props: {
               {
                 value: 'celsius' satisfies UnitsUiModel,
                 label: t('units.celsius'),
+                labelStyle: styles.unitsLabel,
                 accessibilityLabel: t('units.celsiusName'),
               },
               {
                 value: 'fahrenheit' satisfies UnitsUiModel,
                 label: t('units.fahrenheit'),
+                labelStyle: styles.unitsLabel,
                 accessibilityLabel: t('units.fahrenheitName'),
               },
             ]}
@@ -138,7 +134,7 @@ function Current({ current }: { current: CurrentUiModel }) {
     // Wraps onto a second line when the text is too large for one.
     <View style={styles.current} accessible accessibilityLabel={current.accessibilityLabel}>
       <View style={styles.currentTemperature}>
-        <Icon source={current.icon} size={iconSize.current} color={theme.colors.primary} />
+        <Icon source={current.icon} size={iconSizes.current} color={theme.colors.primary} />
         <Text variant="displayMedium">{current.temperature}</Text>
       </View>
       <View>
@@ -172,7 +168,7 @@ function Week({ days }: { days: readonly DayUiModel[] }) {
   const fixedWidth =
     spacing.lg * 2 +
     columns.day +
-    iconSize.row +
+    iconSizes.row +
     columns.chance +
     columns.temperature * 2 +
     spacing.sm +
@@ -204,7 +200,7 @@ function DayRow(props: {
       <Text variant="bodyLarge" numberOfLines={1} style={{ width: columns.day }}>
         {day.dayLabel}
       </Text>
-      <Icon source={day.icon} size={iconSize.row} color={theme.colors.primary} />
+      <Icon source={day.icon} size={iconSizes.row} color={theme.colors.primary} />
       <Text
         variant="labelMedium"
         numberOfLines={1}
@@ -262,12 +258,13 @@ function RangeBar({ start, end }: { start: number; end: number }) {
   );
 }
 
-const iconSize = { current: 56, row: 24 } as const;
-
 /** Column widths at the default text size: room for "Today", "100%" and "-88°". */
 const dayColumn = { day: 56, chance: 44, temperature: 36 } as const;
 
 const barThickness = 6;
+
+/** How high react-native-paper draws a segmented button. */
+const paperSegmentHeight = 40;
 
 /** The range bar is dropped when it would be shorter than this. */
 const minBarWidth = 24;
@@ -281,9 +278,8 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
   centered: { textAlign: 'center' },
   endAligned: { textAlign: 'right' },
-  message: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
-  loading: { paddingVertical: spacing.xl },
-  failure: { alignItems: 'flex-start', gap: spacing.lg },
+  loading: { alignSelf: 'stretch', paddingVertical: spacing.xl },
+  status: { alignItems: 'flex-start', gap: spacing.lg },
   current: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -306,6 +302,9 @@ const styles = StyleSheet.create({
   weekTitle: { flexGrow: 1, flexShrink: 0 },
   // Room for two of Paper's segments at their least width.
   units: { width: 160 },
+  // Paper's segment is 40 points high and cannot be given a larger touch
+  // area than it draws, so the label is padded up to the 48 Material asks for.
+  unitsLabel: { marginVertical: (minTouchTarget - paperSegmentHeight) / 2 },
   week: {
     borderRadius: shapes.medium,
     paddingVertical: spacing.sm,
