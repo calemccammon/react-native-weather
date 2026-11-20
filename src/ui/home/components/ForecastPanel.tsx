@@ -299,9 +299,10 @@ const styles = StyleSheet.create({
     rowGap: spacing.sm,
     marginTop: spacing.sm,
   },
+  // Takes the room the units choice leaves. Sized to exactly its own words,
+  // Android rounds the width down and drops the last word.
+  weekTitle: { flexGrow: 1, flexShrink: 0 },
   // Room for two of Paper's segments at their least width.
-  // Kept whole: without this the row squeezes the heading to its first word.
-  weekTitle: { flexShrink: 0 },
   units: { width: 160 },
   week: {
     borderRadius: shapes.medium,
