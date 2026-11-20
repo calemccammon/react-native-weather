@@ -1,0 +1,83 @@
+{
+  "tryAgain": "Try again",
+  "today": "Today",
+  "search": {
+    "hint": "Search for a place",
+    "prompt": "Type a city, town or postcode",
+    "nothingFound": "Nothing found for \"{{query}}\"",
+    "clear": "Clear place",
+    "searching": "Searching"
+  },
+  "forecast": {
+    "hint": "Search for a place, or press and hold on the map, to see its forecast.",
+    "loading": "Loading the forecast",
+    "thisWeek": "This week",
+    "noDays": "No forecast for the coming days.",
+    "credit": "Weather data by Open-Meteo.com",
+    "expand": "Show more of the forecast",
+    "collapse": "Show more of the map"
+  },
+  "place": {
+    "coordinates": "{{latitude}}, {{longitude}}",
+    "north": "{{degrees}}°N",
+    "south": "{{degrees}}°S",
+    "east": "{{degrees}}°E",
+    "west": "{{degrees}}°W"
+  },
+  "map": {
+    "label": "Map. Press and hold to pick a point.",
+    "credit": "© OpenStreetMap contributors, OpenMapTiles, OpenFreeMap",
+    "selectedPlace": "Selected place"
+  },
+  "units": {
+    "label": "Units",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "celsiusName": "Celsius and km/h",
+    "fahrenheitName": "Fahrenheit and mph"
+  },
+  "temperature": {
+    "plain": "{{degrees}}°",
+    "celsius": "{{degrees}}°C",
+    "fahrenheit": "{{degrees}}°F",
+    "feelsLike": "Feels like {{degrees}}°",
+    "spokenCelsius": "{{degrees}} degrees Celsius",
+    "spokenFahrenheit": "{{degrees}} degrees Fahrenheit"
+  },
+  "wind": "Wind {{speed}}",
+  "speed": {
+    "kmh": "{{speed}} km/h",
+    "mph": "{{speed}} mph"
+  },
+  "precipitationChance": "{{percent}}%",
+  "semantics": {
+    "current": "Now: {{condition}}, {{temperature}}, feels like {{feelsLike}}, wind {{wind}}",
+    "day": "{{day}}: {{condition}}, low {{low}}, high {{high}} degrees",
+    "dayWithChance": "{{day}}: {{condition}}, low {{low}}, high {{high}} degrees, {{percent}} percent chance of precipitation"
+  },
+  "condition": {
+    "clear": "Clear",
+    "mostlyClear": "Mostly clear",
+    "partlyCloudy": "Partly cloudy",
+    "overcast": "Overcast",
+    "fog": "Fog",
+    "drizzle": "Drizzle",
+    "freezingDrizzle": "Freezing drizzle",
+    "rain": "Rain",
+    "freezingRain": "Freezing rain",
+    "snow": "Snow",
+    "rainShowers": "Rain showers",
+    "snowShowers": "Snow showers",
+    "thunderstorm": "Thunderstorm",
+    "unknown": "Unknown"
+  },
+  "failure": {
+    "timeout": "The weather service took too long to answer.",
+    "noConnection": "Could not reach the weather service. Check your connection.",
+    "badResponse": "The weather service sent an answer this app could not read.",
+    "rejected": "The weather service refused the request.",
+    "unavailable": "The weather service is having trouble. Try again in a moment.",
+    "invalidPlace": "That point is not on the map.",
+    "unexpected": "Something went wrong. Please try again."
+  }
+}

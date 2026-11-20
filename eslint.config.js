@@ -17,6 +17,79 @@ module.exports = defineConfig([
       'react-hooks/exhaustive-deps': 'error',
     },
   },
+  // The layers of `src`, each allowed to import only what lies further in.
+  // See "Architecture" in the README.
+  {
+    files: ['src/domain/**'],
+    ignores: ['**/*.test.*'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              // Anything that is not a relative path is a library.
+              regex: '^[^.]',
+              message: 'The domain is plain TypeScript: no libraries.',
+            },
+            {
+              group: ['**/data/**', '**/ui/**', '**/di/**', '**/l10n/**'],
+              message: 'The domain imports nothing from the layers around it.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/data/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/ui/**', '**/di/**', '**/l10n/**'],
+              message: 'The data layer imports the domain and nothing else of the app.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/ui/**'],
+    ignores: ['**/*.test.*'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/data/**', '**/di/**'],
+              message: 'The UI reaches data through the domain, and is handed its view models.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/ui/**/components/**', 'src/ui/**/*Screen.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/data/**', '**/di/**', '**/domain/**'],
+              message: 'Components draw UI models; the domain stops at the view models.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     ignores: ['dist/*', 'android/*', 'ios/*', '.expo/*'],
   },
