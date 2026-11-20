@@ -236,3 +236,21 @@ describe('units', () => {
     expect(temperature(state().forecast)).toBe('36°C');
   });
 });
+
+it('keeps the one place model while the same place is shown', async () => {
+  viewModel.select(asheville);
+  const shown = state().place;
+
+  repository.forecasts[0]!.resolve(sampleForecast());
+  await settle();
+  viewModel.setUnits('celsius');
+  viewModel.reword();
+
+  // The map moves to a place when its model changes, so the same place
+  // loading, changing units or being worded again must not look like a new one.
+  expect(state().place).toBe(shown);
+
+  viewModel.select(asheville);
+  expect(state().place).not.toBe(shown);
+  expect(state().place).toEqual(shown);
+});

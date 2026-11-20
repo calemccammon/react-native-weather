@@ -9,7 +9,7 @@ import type { SetUnits } from '../../../domain/useCases/setUnits';
 import { messageForError } from '../../core/failureMessages';
 import { forecastUiModelFrom, type Wording } from '../models/forecastUiModel';
 import type { ForecastState, HomeState } from '../models/homeState';
-import { placeUiModelFrom } from '../models/placeUiModel';
+import { placeUiModelFrom, type PlaceUiModel } from '../models/placeUiModel';
 import { unitsUiModelFrom, unitsUiModelToDomain, type UnitsUiModel } from '../models/unitsUiModel';
 
 export interface HomeViewModelDependencies {
@@ -38,6 +38,13 @@ export class HomeViewModel {
   readonly store: StoreApi<HomeState>;
 
   private place: Place | null = null;
+
+  /**
+   * The selected place as the screen shows it. Made once per selection, so
+   * the screen can tell a new place from the same one shown again.
+   */
+  private placeUiModel: PlaceUiModel | null = null;
+
   private units: Units;
 
   /** Null while the newest request is under way. */
@@ -57,6 +64,7 @@ export class HomeViewModel {
   /** Makes `place` the selected place and loads its forecast. */
   select = (place: Place): void => {
     this.place = place;
+    this.placeUiModel = placeUiModelFrom(place);
     void this.load();
   };
 
@@ -67,6 +75,7 @@ export class HomeViewModel {
 
   clear = (): void => {
     this.place = null;
+    this.placeUiModel = null;
     this.outcome = null;
     this.request++;
     this.show();
@@ -131,9 +140,9 @@ export class HomeViewModel {
   /** The place and the request's outcome, in the app's current wording. */
   private currentState(): HomeState {
     const units = unitsUiModelFrom(this.units);
-    if (this.place === null) return { units, place: null, forecast: { kind: 'idle' } };
+    if (this.placeUiModel === null) return { units, place: null, forecast: { kind: 'idle' } };
 
-    return { units, place: placeUiModelFrom(this.place), forecast: this.forecastState() };
+    return { units, place: this.placeUiModel, forecast: this.forecastState() };
   }
 
   private forecastState(): ForecastState {

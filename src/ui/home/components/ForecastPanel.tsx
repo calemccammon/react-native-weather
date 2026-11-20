@@ -99,24 +99,26 @@ function Loaded(props: {
         <Text variant="titleMedium" accessibilityRole="header" style={styles.weekTitle}>
           {t('forecast.thisWeek')}
         </Text>
-        <SegmentedButtons
-          density="small"
-          style={styles.units}
-          value={props.units}
-          onValueChange={(value) => props.onUnitsChange(value as UnitsUiModel)}
-          buttons={[
-            {
-              value: 'celsius' satisfies UnitsUiModel,
-              label: t('units.celsius'),
-              accessibilityLabel: t('units.celsiusName'),
-            },
-            {
-              value: 'fahrenheit' satisfies UnitsUiModel,
-              label: t('units.fahrenheit'),
-              accessibilityLabel: t('units.fahrenheitName'),
-            },
-          ]}
-        />
+        <View accessibilityRole="radiogroup" accessibilityLabel={t('units.label')}>
+          <SegmentedButtons
+            density="small"
+            style={styles.units}
+            value={props.units}
+            onValueChange={(value) => props.onUnitsChange(value as UnitsUiModel)}
+            buttons={[
+              {
+                value: 'celsius' satisfies UnitsUiModel,
+                label: t('units.celsius'),
+                accessibilityLabel: t('units.celsiusName'),
+              },
+              {
+                value: 'fahrenheit' satisfies UnitsUiModel,
+                label: t('units.fahrenheit'),
+                accessibilityLabel: t('units.fahrenheitName'),
+              },
+            ]}
+          />
+        </View>
       </View>
 
       <Week days={props.forecast.days} />

@@ -24,17 +24,23 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
+    let created: AppContainer | undefined;
     void (async () => {
-      const [created] = await Promise.all([
+      [created] = await Promise.all([
         createContainer(),
         // Without its font an icon is an empty box; a failure to load it
         // should not keep the app from starting.
         loadAsync(MaterialCommunityIcons.font).catch(() => undefined),
       ]);
-      if (!cancelled) setContainer(created);
+      if (cancelled) {
+        created.dispose();
+      } else {
+        setContainer(created);
+      }
     })();
     return () => {
       cancelled = true;
+      created?.dispose();
     };
   }, []);
 

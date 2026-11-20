@@ -80,7 +80,10 @@ export class Deferred<T> {
  */
 export class FakeWeatherRepository implements WeatherRepository {
   readonly searchQueries: string[] = [];
+  /** The newest unanswered search for each query. */
   readonly searches = new Map<string, Deferred<Place[]>>();
+  /** Every unanswered search, in the order they were sent. */
+  readonly searchCalls: Deferred<Place[]>[] = [];
   readonly forecasts: Deferred<Forecast>[] = [];
   readonly forecastRequests: { latitude: number; longitude: number; units: Units }[] = [];
 
@@ -99,6 +102,7 @@ export class FakeWeatherRepository implements WeatherRepository {
     if (this.placesToReturn !== undefined) return Promise.resolve(this.placesToReturn);
     const deferred = new Deferred<Place[]>();
     this.searches.set(query, deferred);
+    this.searchCalls.push(deferred);
     return deferred.promise;
   }
 

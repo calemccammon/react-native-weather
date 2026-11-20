@@ -202,6 +202,8 @@ describe('forecast', () => {
     expect(screen.queryByText('This week')).not.toBeOnTheScreen();
     expect(searchBar()).toHaveDisplayValue('');
     expect(mockMap.props?.pin).toBeNull();
+    // Clearing is not searching: the results stay shut.
+    expect(screen.queryByTestId('search-scrim')).not.toBeOnTheScreen();
   });
 
   it('reads each block out as one sentence', async () => {

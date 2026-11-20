@@ -17,7 +17,7 @@ to compare the frameworks.
 ## What it does
 
 - **Search** with results as you type, after a short pause; an answer to an
-  older query never replaces a newer one.
+  older search never replaces a newer one.
 - **Pick a point** by pressing and holding on the map.
 - **Forecast**: current conditions, then seven days with the chance of
   precipitation and each day's range drawn against the week's.
@@ -43,8 +43,8 @@ and `ui` import `domain`, and `domain` imports neither.
 | `src/data`    | Open-Meteo: the wire-shaped models (`*Dto.ts`), their translation into domain types, and the repository implementation. Settings are kept with AsyncStorage.                                                                                                                                               |
 | `src/l10n`    | Every string the user sees, in `en.json`, read through `i18next`. The keys are typed, so a misspelt one fails `npm run typecheck`.                                                                                                                                                                         |
 | `src/ui`      | `core` has the theme, its design tokens and the mapping from domain values to wording and icons. `home` has `models` (what the screen shows, already worded and rounded), `viewModels` (call use cases and produce those models) and `components` (draw them, and import nothing from the domain or data). |
-| `src/di`      | `buildContainer` wires use cases and view models over whichever repositories it is given; `createContainer` gives it the real ones.                                                                                                                                                                        |
-| `src/testing` | Fakes shared by the tests, which sit beside the files they test as `*.test.ts`.                                                                                                                                                                                                                            |
+| `src/di`      | `buildContainer` wires use cases and view models over whichever repositories it is given; `createContainer` gives it the real ones. `AppContainerContext` hands the view models to the components through hooks, which is the one thing `ui` imports from here.                                            |
+| `src/testing` | Fakes shared by the tests, which sit beside the code they test as `*.test.ts`.                                                                                                                                                                                                                             |
 
 Each layer has its own model of the same thing, and a translation between
 them:

@@ -187,3 +187,23 @@ it('words a failure on screen again when the language changes', async () => {
 
   expect(state()).toEqual({ kind: 'failed', query: 'ashe', message: 'Keine Verbindung.' });
 });
+
+it('ignores an old answer for text that has since been typed again', async () => {
+  await search('ash');
+  await search('ashe');
+  await search('ash');
+  const [first, , second] = repository.searchCalls;
+
+  second!.resolve([asheville]);
+  await jest.advanceTimersByTimeAsync(0);
+  first!.reject(new WeatherError('timeout'));
+  await jest.advanceTimersByTimeAsync(0);
+
+  expect(state()).toEqual({
+    kind: 'results',
+    query: 'ash',
+    places: [placeUiModelFrom(asheville)],
+  });
+  viewModel.choose(0);
+  expect(chosen).toEqual([asheville]);
+});

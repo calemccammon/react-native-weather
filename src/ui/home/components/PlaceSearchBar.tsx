@@ -90,14 +90,18 @@ export function PlaceSearchBar(props: PlaceSearchBarProps) {
         // something to search for, so opening it starts from empty. (Android
         // loses typed letters when the name is selected for replacing.)
         onFocus={() => {
-          if (!open) setText('');
+          // Focus coming back to a bar that is already open (after a press on
+          // "Try again", say) keeps what is typed and found.
+          if (open) return;
+          setText('');
           search.reset();
           onOpenChange(true);
         }}
         onChangeText={(value) => {
           setText(value);
           search.queryChanged(value);
-          if (!open) onOpenChange(true);
+          // The clear button empties the bar without opening the results.
+          if (!open && value !== '') onOpenChange(true);
         }}
         onClearIconPress={() => {
           search.reset();

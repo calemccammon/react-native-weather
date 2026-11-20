@@ -14,6 +14,8 @@ export interface AppContainer {
   readonly i18n: i18n;
   readonly homeViewModel: HomeViewModel;
   readonly searchViewModel: SearchViewModel;
+  /** Lets go of what the container holds on to. Call when it is replaced. */
+  readonly dispose: () => void;
 }
 
 /** What `buildContainer` is given: the implementations and the device's facts. */
@@ -46,10 +48,15 @@ export function buildContainer(parts: ContainerParts): AppContainer {
     wording,
   });
 
-  i18n.on('languageChanged', () => {
+  const reword = () => {
     homeViewModel.reword();
     searchViewModel.reword();
-  });
+  };
+  i18n.on('languageChanged', reword);
 
-  return { i18n, homeViewModel, searchViewModel };
+  const dispose = () => {
+    i18n.off('languageChanged', reword);
+    searchViewModel.dispose();
+  };
+  return { i18n, homeViewModel, searchViewModel, dispose };
 }

@@ -22,7 +22,7 @@ export interface SearchViewModelDependencies {
  * Turns what the user types into search results.
  *
  * It waits for a pause in typing before searching, and an answer that comes
- * back after the text has changed again is thrown away.
+ * back after a newer search has been sent is thrown away.
  */
 export class SearchViewModel {
   /** What the search results area shows. Components subscribe to it. */
@@ -30,11 +30,14 @@ export class SearchViewModel {
 
   private debounce: ReturnType<typeof setTimeout> | undefined;
 
-  /**
-   * The text of the newest request, so an older, slower one can tell it has
-   * been overtaken.
-   */
+  /** The text last asked about; what `retry` asks about again. */
   private latestQuery = '';
+
+  /**
+   * Counts changes of the query, so an answer can tell whether it is still
+   * wanted. The text alone cannot: the same text can be searched for twice.
+   */
+  private request = 0;
 
   /** The places behind the rows of the current results, in order. */
   private results: readonly Place[] = [];
@@ -48,6 +51,7 @@ export class SearchViewModel {
     const query = text.trim();
     if (query === this.latestQuery) return;
     this.latestQuery = query;
+    this.request++;
     clearTimeout(this.debounce);
 
     if (!isSearchable(query)) {
@@ -62,6 +66,7 @@ export class SearchViewModel {
   reset = (): void => {
     clearTimeout(this.debounce);
     this.latestQuery = '';
+    this.request++;
     this.results = [];
     this.store.setState({ kind: 'idle' }, true);
   };
@@ -78,6 +83,7 @@ export class SearchViewModel {
     const query = this.latestQuery;
     if (!isSearchable(query)) return;
     clearTimeout(this.debounce);
+    this.request++;
     this.store.setState({ kind: 'loading', query }, true);
     void this.search(query);
   };
@@ -98,9 +104,11 @@ export class SearchViewModel {
   /** Stops waiting on a pause in typing. Call when the view model is done with. */
   dispose = (): void => {
     clearTimeout(this.debounce);
+    this.request++;
   };
 
   private async search(query: string): Promise<void> {
+    const request = this.request;
     let places: Place[] = [];
     let error: unknown;
     let state: SearchState;
@@ -118,7 +126,7 @@ export class SearchViewModel {
         message: messageForError(caught, this.dependencies.wording().t),
       };
     }
-    if (this.latestQuery !== query) return;
+    if (request !== this.request) return;
     this.results = places;
     this.error = error;
     this.store.setState(state, true);
