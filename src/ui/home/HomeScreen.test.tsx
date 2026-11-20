@@ -109,7 +109,10 @@ describe('search', () => {
     expect(screen.getByText('80%')).toBeOnTheScreen();
     expect(screen.getByText('Weather data by Open-Meteo.com')).toBeOnTheScreen();
     expect(searchBar()).toHaveDisplayValue('Asheville');
-    expect(repository.searchQueries).toEqual(['ashev']);
+    // What was searched for last is the whole of what was typed. Whether the
+    // letters before it were also sent depends on how fast they were typed;
+    // the pause before a search has its own tests, on the view model's clock.
+    expect(repository.searchQueries.at(-1)).toBe('ashev');
   });
 
   it('prompts for something to type when it opens', async () => {
