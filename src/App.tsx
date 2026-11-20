@@ -7,11 +7,11 @@ import { useColorScheme } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AppContainerProvider } from './di/AppContainerContext';
 import type { AppContainer } from './di/buildContainer';
 import { createContainer } from './di/container';
 import { appTheme } from './ui/core/theme';
 import { HomeScreen } from './ui/home/HomeScreen';
+import { ViewModelsProvider } from './ui/home/viewModels/ViewModelsContext';
 
 /**
  * Opens what the app needs before it can draw (the saved settings and the
@@ -50,10 +50,10 @@ export function App() {
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
         <I18nextProvider i18n={container.i18n}>
-          <AppContainerProvider container={container}>
+          <ViewModelsProvider viewModels={container}>
             <HomeScreen />
             <StatusBar style={dark ? 'light' : 'dark'} />
-          </AppContainerProvider>
+          </ViewModelsProvider>
         </I18nextProvider>
       </PaperProvider>
     </SafeAreaProvider>

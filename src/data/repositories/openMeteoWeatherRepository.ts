@@ -20,6 +20,11 @@ export type Fetch = (
 
 export const defaultTimeoutMs = 15_000;
 
+/** HTTP statuses this repository tells apart. */
+const ok = 200;
+const tooManyRequests = 429;
+const firstServerError = 500;
+
 const geocodingUrl = 'https://geocoding-api.open-meteo.com/v1/search';
 const forecastUrl = 'https://api.open-meteo.com/v1/forecast';
 
@@ -99,18 +104,24 @@ export class OpenMeteoWeatherRepository implements WeatherRepository {
       clearTimeout(timer);
     }
 
-    let body: JsonObject;
+    // The service's own trouble, or too many requests: its answer, often a
+    // proxy's error page, is not read at all.
+    if (status >= firstServerError || status === tooManyRequests) {
+      throw new WeatherError('unavailable', `HTTP ${status}`);
+    }
+
+    let body: JsonObject | undefined;
     try {
       body = readObject(JSON.parse(text), 'response');
     } catch (error) {
-      throw new WeatherError('badResponse', String(error));
+      if (status === ok) throw new WeatherError('badResponse', String(error));
     }
 
     // Bad input comes back as HTTP 400 with {"error": true, "reason": "..."}.
-    if (status !== 200 || body.error === true) {
+    if (status !== ok || body === undefined || body.error === true) {
       throw new WeatherError(
         'rejected',
-        typeof body.reason === 'string' ? body.reason : `HTTP ${status}`,
+        typeof body?.reason === 'string' ? body.reason : `HTTP ${status}`,
       );
     }
     return body;

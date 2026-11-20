@@ -72,7 +72,7 @@ it('waits for a pause in typing, then shows the results', async () => {
   expect(state()).toEqual({
     kind: 'results',
     query: 'ashe',
-    places: [placeUiModelFrom(asheville), placeUiModelFrom(ashford)],
+    places: [placeUiModelFrom(asheville, i18n.t), placeUiModelFrom(ashford, i18n.t)],
   });
 });
 
@@ -101,7 +101,7 @@ it('does not let an answer to an older query replace a newer one', async () => {
   expect(state()).toEqual({
     kind: 'results',
     query: 'ashe',
-    places: [placeUiModelFrom(asheville)],
+    places: [placeUiModelFrom(asheville, i18n.t)],
   });
 });
 
@@ -202,7 +202,7 @@ it('ignores an old answer for text that has since been typed again', async () =>
   expect(state()).toEqual({
     kind: 'results',
     query: 'ash',
-    places: [placeUiModelFrom(asheville)],
+    places: [placeUiModelFrom(asheville, i18n.t)],
   });
   viewModel.choose(0);
   expect(chosen).toEqual([asheville]);

@@ -23,6 +23,7 @@ export interface WeatherRepository {
  * - `noConnection`: the service could not be reached at all.
  * - `badResponse`: an answer came, but not one the app understands.
  * - `rejected`: the service refused the request.
+ * - `unavailable`: the service is in trouble or too busy; trying later may work.
  * - `invalidPlace`: the place asked about is not a point on the globe.
  */
 export const weatherFailures = [
@@ -30,6 +31,7 @@ export const weatherFailures = [
   'noConnection',
   'badResponse',
   'rejected',
+  'unavailable',
   'invalidPlace',
 ] as const;
 

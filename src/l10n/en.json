@@ -17,6 +17,13 @@
     "expand": "Show more of the forecast",
     "collapse": "Show more of the map"
   },
+  "place": {
+    "coordinates": "{{latitude}}, {{longitude}}",
+    "north": "{{degrees}}°N",
+    "south": "{{degrees}}°S",
+    "east": "{{degrees}}°E",
+    "west": "{{degrees}}°W"
+  },
   "map": {
     "label": "Map. Press and hold to pick a point.",
     "credit": "© OpenStreetMap contributors, OpenMapTiles, OpenFreeMap",
@@ -69,6 +76,7 @@
     "noConnection": "Could not reach the weather service. Check your connection.",
     "badResponse": "The weather service sent an answer this app could not read.",
     "rejected": "The weather service refused the request.",
+    "unavailable": "The weather service is having trouble. Try again in a moment.",
     "invalidPlace": "That point is not on the map.",
     "unexpected": "Something went wrong. Please try again."
   }

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Button, Icon, ProgressBar, SegmentedButtons, Text, useTheme } from 'react-native-paper';
 
-import { useHomeState, useHomeViewModel } from '../../../di/AppContainerContext';
+import { useHomeState, useHomeViewModel } from '../viewModels/ViewModelsContext';
 import { shapes, spacing } from '../../core/tokens';
 import type { CurrentUiModel, DayUiModel, ForecastUiModel } from '../models/forecastUiModel';
 import type { UnitsUiModel } from '../models/unitsUiModel';

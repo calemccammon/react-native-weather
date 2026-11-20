@@ -35,7 +35,9 @@ to compare the frameworks.
 ## Architecture
 
 Clean Architecture in three layers. Dependencies point inward only: `data`
-and `ui` import `domain`, and `domain` imports neither.
+and `ui` import `domain`, and `domain` imports neither, nor any library.
+`npm run lint` fails on an import that breaks this (the rules are in
+`eslint.config.js`).
 
 | Path          | What it holds                                                                                                                                                                                                                                                                                              |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -43,7 +45,7 @@ and `ui` import `domain`, and `domain` imports neither.
 | `src/data`    | Open-Meteo: the wire-shaped models (`*Dto.ts`), their translation into domain types, and the repository implementation. Settings are kept with AsyncStorage.                                                                                                                                               |
 | `src/l10n`    | Every string the user sees, in `en.json`, read through `i18next`. The keys are typed, so a misspelt one fails `npm run typecheck`.                                                                                                                                                                         |
 | `src/ui`      | `core` has the theme, its design tokens and the mapping from domain values to wording and icons. `home` has `models` (what the screen shows, already worded and rounded), `viewModels` (call use cases and produce those models) and `components` (draw them, and import nothing from the domain or data). |
-| `src/di`      | `buildContainer` wires use cases and view models over whichever repositories it is given; `createContainer` gives it the real ones. `AppContainerContext` hands the view models to the components through hooks, which is the one thing `ui` imports from here.                                            |
+| `src/di`      | `buildContainer` wires use cases and view models over whichever repositories it is given; `createContainer` gives it the real ones. Nothing else imports from here but `App.tsx`, which hands the view models to the screen.                                                                               |
 | `src/testing` | Fakes shared by the tests, which sit beside the code they test as `*.test.ts`.                                                                                                                                                                                                                             |
 
 Each layer has its own model of the same thing, and a translation between
@@ -119,8 +121,7 @@ The base path `/react-native-weather` is set in `app.json`
 
 - **English only.** The wording is all in `src/l10n/en.json` and weekday
   names follow the app's language, so a second language is one more file;
-  none has been written. A point picked off the map is still named in one
-  notation ("35.60°N, 82.55°W").
+  none has been written.
 - **Places are not saved**: the chosen place is forgotten when the app
   closes. Only the choice of units is kept.
 - **The bottom sheet drags by its handle only.** Its content scrolls, and

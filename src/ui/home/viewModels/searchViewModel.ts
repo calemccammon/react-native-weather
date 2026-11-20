@@ -112,18 +112,19 @@ export class SearchViewModel {
     let places: Place[] = [];
     let error: unknown;
     let state: SearchState;
+    const { t } = this.dependencies.wording();
     try {
       places = await this.dependencies.searchPlaces.execute(query);
       state =
         places.length === 0
           ? { kind: 'empty', query }
-          : { kind: 'results', query, places: places.map(placeUiModelFrom) };
+          : { kind: 'results', query, places: places.map((place) => placeUiModelFrom(place, t)) };
     } catch (caught) {
       error = caught;
       state = {
         kind: 'failed',
         query,
-        message: messageForError(caught, this.dependencies.wording().t),
+        message: messageForError(caught, t),
       };
     }
     if (request !== this.request) return;

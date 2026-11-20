@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Surface, Text, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useHomeState, useHomeViewModel } from '../../di/AppContainerContext';
+import { useHomeState, useHomeViewModel } from './viewModels/ViewModelsContext';
 import { breakpoints, shapes, spacing } from '../core/tokens';
 import { BottomSheet, sheetStops } from './components/BottomSheet';
 import { ForecastPanel } from './components/ForecastPanel';

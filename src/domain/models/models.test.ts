@@ -1,29 +1,17 @@
 import { sampleForecast } from '../../testing/fakes';
 import { isToday } from './forecast';
-import { normalizeLongitude, placeFromCoordinates, placeSubtitle } from './place';
+import { normalizeLongitude, placeFromCoordinates } from './place';
 import { unitsForCountry } from './units';
 
 describe('a place', () => {
-  it('has a subtitle made of whichever parts are known', () => {
-    const base = { name: 'Asheville', latitude: 35.6, longitude: -82.55 };
-
-    expect(placeSubtitle({ ...base, region: 'North Carolina', country: 'United States' })).toBe(
-      'North Carolina, United States',
-    );
-    expect(placeSubtitle({ ...base, country: 'United States' })).toBe('United States');
-    expect(placeSubtitle(base)).toBe('');
-  });
-
-  it('picked off the map is named by its coordinates', () => {
-    expect(placeFromCoordinates(35.6, -82.55).name).toBe('35.60°N, 82.55°W');
-    expect(placeFromCoordinates(-33.87, 151.21).name).toBe('33.87°S, 151.21°E');
+  it('picked off the map has no name', () => {
+    expect(placeFromCoordinates(35.6, -82.55)).toEqual({ latitude: 35.6, longitude: -82.55 });
   });
 
   it('picked off a map dragged round the world has its longitude brought back', () => {
     const place = placeFromCoordinates(35.6, -82.55 + 360);
 
     expect(place.longitude).toBeCloseTo(-82.55, 9);
-    expect(place.name).toBe('35.60°N, 82.55°W');
   });
 });
 

@@ -64,7 +64,7 @@ export class HomeViewModel {
   /** Makes `place` the selected place and loads its forecast. */
   select = (place: Place): void => {
     this.place = place;
-    this.placeUiModel = placeUiModelFrom(place);
+    this.placeUiModel = placeUiModelFrom(place, this.dependencies.wording().t);
     void this.load();
   };
 
@@ -109,6 +109,12 @@ export class HomeViewModel {
    * is called when the app's language changes.
    */
   reword = (): void => {
+    if (this.place !== null && this.placeUiModel !== null) {
+      // A place with no name is worded too. One that reads the same keeps
+      // its model, so the screen does not take it for a new place.
+      const reworded = placeUiModelFrom(this.place, this.dependencies.wording().t);
+      if (reworded.title !== this.placeUiModel.title) this.placeUiModel = reworded;
+    }
     this.show();
   };
 

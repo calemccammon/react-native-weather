@@ -1,6 +1,7 @@
-/** A point on the map with a name to show for it. */
+/** A point on the map. */
 export interface Place {
-  readonly name: string;
+  /** What the place is called. A point picked straight off the map has none. */
+  readonly name?: string;
   readonly latitude: number;
   readonly longitude: number;
   /** State, province or similar. Tells two places of one name apart. */
@@ -23,13 +24,5 @@ export function normalizeLongitude(longitude: number): number {
  * longitudes past 180 degrees, so the longitude is brought back into range.
  */
 export function placeFromCoordinates(latitude: number, rawLongitude: number): Place {
-  const longitude = normalizeLongitude(rawLongitude);
-  const lat = `${Math.abs(latitude).toFixed(2)}°${latitude >= 0 ? 'N' : 'S'}`;
-  const lon = `${Math.abs(longitude).toFixed(2)}°${longitude >= 0 ? 'E' : 'W'}`;
-  return { name: `${lat}, ${lon}`, latitude, longitude };
-}
-
-/** "North Carolina, United States", or whichever parts are known. */
-export function placeSubtitle(place: Place): string {
-  return [place.region, place.country].filter((part) => part !== undefined).join(', ');
+  return { latitude, longitude: normalizeLongitude(rawLongitude) };
 }

@@ -17,7 +17,7 @@ import {
   useHomeViewModel,
   useSearchState,
   useSearchViewModel,
-} from '../../../di/AppContainerContext';
+} from '../viewModels/ViewModelsContext';
 import { shapes, spacing } from '../../core/tokens';
 import type { SearchState } from '../models/searchState';
 

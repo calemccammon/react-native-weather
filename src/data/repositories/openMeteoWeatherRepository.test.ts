@@ -194,12 +194,27 @@ describe('when the service does not answer properly', () => {
     expect(error.detail).toBe('Latitude must be in range.');
   });
 
-  it('reports an error status with no reason as a refusal', async () => {
-    const { fetch } = answering({}, 503);
+  it.each([
+    ['with no reason', {}],
+    ['with a page that is not JSON', '<html>Not found</html>'],
+  ])('reports an error status %s as a refusal', async (_, body) => {
+    const { fetch } = answering(body, 404);
 
     const error = await new OpenMeteoWeatherRepository(fetch).searchPlaces('ash').catch((e) => e);
 
-    expect([error.failure, error.detail]).toEqual(['rejected', 'HTTP 503']);
+    expect([error.failure, error.detail]).toEqual(['rejected', 'HTTP 404']);
+  });
+
+  it.each([
+    ['a server error', 503, '<html>Service unavailable</html>'],
+    ['a gateway error with a JSON body', 502, { error: true, reason: 'Upstream failed.' }],
+    ['too many requests', 429, { error: true, reason: 'Minutely limit exceeded.' }],
+  ])("reports %s as the service's own trouble", async (_, status, body) => {
+    const { fetch } = answering(body, status);
+
+    const error = await new OpenMeteoWeatherRepository(fetch).forecast(somewhere).catch((e) => e);
+
+    expect([error.failure, error.detail]).toEqual(['unavailable', `HTTP ${status}`]);
   });
 
   it.each([

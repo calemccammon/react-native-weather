@@ -61,7 +61,7 @@ it('starts with no place and nothing to forecast', () => {
 it('shows a selected place at once, then its forecast', async () => {
   viewModel.select(asheville);
 
-  expect(state().place).toEqual(placeUiModelFrom(asheville));
+  expect(state().place).toEqual(placeUiModelFrom(asheville, i18n.t));
   expect(state().forecast).toEqual({ kind: 'loading' });
   expect(repository.forecastRequests).toEqual([
     { latitude: 35.6, longitude: -82.55, units: 'imperial' },
@@ -89,7 +89,7 @@ it('says why a forecast failed, and shows the wait when asked to try again', asy
 
   viewModel.retryForecast();
   expect(state().forecast).toEqual({ kind: 'loading' });
-  expect(state().place).toEqual(placeUiModelFrom(asheville));
+  expect(state().place).toEqual(placeUiModelFrom(asheville, i18n.t));
 
   repository.forecasts[1]?.resolve(sampleForecast());
   await settle();
@@ -122,7 +122,7 @@ it("does not let an earlier place's forecast replace a later place's", async () 
   repository.forecasts[0]?.reject(new WeatherError('timeout'));
   await settle();
 
-  expect(state().place).toEqual(placeUiModelFrom(ashford));
+  expect(state().place).toEqual(placeUiModelFrom(ashford, i18n.t));
   expect(state().forecast.kind).toBe('loaded');
 });
 

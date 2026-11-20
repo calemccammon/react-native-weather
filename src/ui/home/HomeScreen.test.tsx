@@ -3,7 +3,6 @@ import { act } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { PaperProvider } from 'react-native-paper';
 
-import { AppContainerProvider } from '../../di/AppContainerContext';
 import { buildContainer, type AppContainer } from '../../di/buildContainer';
 import { WeatherError } from '../../domain/repositories/weatherRepository';
 import { createI18n } from '../../l10n/i18n';
@@ -17,6 +16,7 @@ import { appTheme } from '../core/theme';
 import { sheetStops } from './components/BottomSheet';
 import type { WeatherMapProps } from './components/WeatherMap.types';
 import { HomeScreen } from './HomeScreen';
+import { ViewModelsProvider } from './viewModels/ViewModelsContext';
 
 // The real map is native code. This one records what the screen asks of it.
 const mockMap: { props?: WeatherMapProps } = {};
@@ -65,9 +65,9 @@ async function renderScreen(size = desktop) {
   await render(
     <PaperProvider theme={appTheme(false)}>
       <I18nextProvider i18n={container.i18n}>
-        <AppContainerProvider container={container}>
+        <ViewModelsProvider viewModels={container}>
           <HomeScreen />
-        </AppContainerProvider>
+        </ViewModelsProvider>
       </I18nextProvider>
     </PaperProvider>,
   );
@@ -300,9 +300,9 @@ describe('layout', () => {
     await screen.rerender(
       <PaperProvider theme={appTheme(false)}>
         <I18nextProvider i18n={container.i18n}>
-          <AppContainerProvider container={container}>
+          <ViewModelsProvider viewModels={container}>
             <HomeScreen />
-          </AppContainerProvider>
+          </ViewModelsProvider>
         </I18nextProvider>
       </PaperProvider>,
     );

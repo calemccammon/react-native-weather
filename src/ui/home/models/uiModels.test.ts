@@ -113,13 +113,25 @@ it('has no rows for a forecast with no days', () => {
 });
 
 it('shows a place by its name, the rest of what is known, and where it is', () => {
-  expect(placeUiModelFrom(asheville)).toEqual({
+  expect(placeUiModelFrom(asheville, wording.t)).toEqual({
     title: 'Asheville',
     subtitle: 'North Carolina, United States',
     latitude: 35.6,
     longitude: -82.55,
   });
-  expect(placeUiModelFrom({ name: 'Somewhere', latitude: 1, longitude: 2 }).subtitle).toBe('');
+  const somewhere = { name: 'Somewhere', latitude: 1, longitude: 2 };
+  expect(placeUiModelFrom(somewhere, wording.t).subtitle).toBe('');
+  expect(placeUiModelFrom({ ...somewhere, country: 'France' }, wording.t).subtitle).toBe('France');
+});
+
+it('calls a place with no name by its coordinates', () => {
+  const title = (latitude: number, longitude: number) =>
+    placeUiModelFrom({ latitude, longitude }, wording.t).title;
+
+  expect(title(35.6, -82.55)).toBe('35.60°N, 82.55°W');
+  expect(title(-33.87, 151.21)).toBe('33.87°S, 151.21°E');
+  // Too near the equator and the meridian to show: not "0.00°S, 0.00°W".
+  expect(title(-0.001, -0.004)).toBe('0.00°N, 0.00°E');
 });
 
 it('has a units choice for each system of units, and back again', () => {
