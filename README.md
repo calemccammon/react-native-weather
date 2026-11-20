@@ -1,9 +1,10 @@
 # react-native-weather
 
 A weather app in React Native (Expo): search for a place, see its forecast.
-One of three builds of the same app, alongside
-[flutter-weather](https://github.com/calemccammon/flutter-weather) and
-[kmp-weather](https://github.com/calemccammon/kmp-weather), to compare the
+One of four builds of the same app, alongside
+[flutter-weather](https://github.com/calemccammon/flutter-weather),
+[kmp-weather](https://github.com/calemccammon/kmp-weather) and
+[maui-weather](https://github.com/calemccammon/maui-weather), to compare the
 frameworks.
 
 The repository holds the project set-up only. `App.tsx` is the
