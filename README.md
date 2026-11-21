@@ -4,6 +4,8 @@ A weather app in React Native (Expo). One screen: a map with a Material 3
 search bar over it. Search for a place, or press and hold on the map, and the
 forecast for the week appears.
 
+**Live demo:** <https://calemccammon.github.io/react-native-weather/>
+
 | Wide window                                                                                                 | Phone                                                                                         |
 | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | ![The app on a wide window: a side panel with the week's forecast beside the map](docs/screenshot-wide.png) | ![The app on a phone: the forecast in a bottom sheet over the map](docs/screenshot-phone.png) |
