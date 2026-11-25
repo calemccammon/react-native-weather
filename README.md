@@ -10,29 +10,35 @@ forecast for the week appears.
 | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | ![The app on a wide window: a side panel with the week's forecast beside the map](docs/screenshot-wide.png) | ![The app on a phone: the forecast in a bottom sheet over the map](docs/screenshot-phone.png) |
 
-It is one of four builds of the same app, alongside
+It is one of six cross-platform builds of the same app, written to compare
+the frameworks. The others are
 [flutter-weather](https://github.com/calemccammon/flutter-weather),
-[kmp-weather](https://github.com/calemccammon/kmp-weather) and
+[kmp-weather](https://github.com/calemccammon/kmp-weather),
 [maui-weather](https://github.com/calemccammon/maui-weather),
-to compare the frameworks.
+[ionic-weather](https://github.com/calemccammon/ionic-weather) and
+[capacitor-weather](https://github.com/calemccammon/capacitor-weather).
+[android-weather](https://github.com/calemccammon/android-weather) is the
+native Android build in Kotlin and Jetpack Compose, which goes further with
+saved places, offline forecasts and a home-screen widget.
 
 ## What it does
 
-- **Search** with results as you type, after a short pause; an answer to an
-  older search never replaces a newer one.
+- **Search as you type**, debounced; a late response to an older query never
+  overwrites a newer one.
 - **Pick a point** by pressing and holding on the map.
 - **Forecast**: current conditions, then seven days with the chance of
-  precipitation and each day's range drawn against the week's.
+  precipitation and a bar placing each day's low and high within the week's
+  range.
 - **Adapts to the window**: a draggable bottom sheet on a phone, a side panel
   from 840 px wide. The map keeps the chosen place clear of both.
-- **Celsius or Fahrenheit**, chosen on the forecast and remembered between
-  launches. Until you choose, it follows the device's region.
+- **Celsius or Fahrenheit**, switched from the forecast and saved between
+  launches. The default follows the device's region.
 - **Light and dark** themes from one seed colour, following the system. The
   map changes style with them.
-- **Accessible**: each forecast block is read as one sentence by a screen
-  reader, and the forecast's columns grow with the device's text size.
-- **Says what went wrong**: a timeout, no connection and a refused request
-  each have their own message and a way to try again.
+- **Accessible**: screen readers read each forecast block as one sentence,
+  and the forecast's columns widen with the device's text size.
+- **Errors**: a timeout, no connection, a refused request and an
+  overloaded service each get their own message and a Try again button.
 
 ## Architecture
 
@@ -45,13 +51,12 @@ and `ui` import `domain`, and `domain` imports neither, nor any library.
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/domain`  | The app's own types (`Place`, `Forecast`, `WeatherCondition`, `Units`), the repository interfaces (`WeatherRepository` with its failure kinds, `SettingsRepository`), and the use cases (`SearchPlaces`, `GetForecast`, `GetUnits`, `SetUnits`) that hold the rules. Plain TypeScript: no React, no Expo.  |
 | `src/data`    | Open-Meteo: the wire-shaped models (`*Dto.ts`), their translation into domain types, and the repository implementation. Settings are kept with AsyncStorage.                                                                                                                                               |
-| `src/l10n`    | Every string the user sees, in `en.json`, read through `i18next`. The keys are typed, so a misspelt one fails `npm run typecheck`.                                                                                                                                                                         |
-| `src/ui`      | `core` has the theme, its design tokens and the mapping from domain values to wording and icons. `home` has `models` (what the screen shows, already worded and rounded), `viewModels` (call use cases and produce those models) and `components` (draw them, and import nothing from the domain or data). |
-| `src/di`      | `buildContainer` wires use cases and view models over whichever repositories it is given; `createContainer` gives it the real ones. Nothing else imports from here but `App.tsx`, which hands the view models to the screen.                                                                               |
+| `src/l10n`    | All user-facing strings, in `en.json`, read through `i18next`. The keys are typed, so a misspelt one fails `npm run typecheck`.                                                                                                                                                                            |
+| `src/ui`      | `core` has the theme, its design tokens and the mapping from domain values to wording and icons. `home` has `models` (what the screen shows, already worded and rounded), `viewModels` (call use cases and produce those models) and `components` (render the models and never import the domain or data). |
+| `src/di`      | `buildContainer` wires use cases and view models over whichever repositories it is given; `createContainer` passes it the real ones. Outside tests, only `App.tsx` imports it, and hands the view models to the screen.                                                                                    |
 | `src/testing` | Fakes shared by the tests, which sit beside the code they test as `*.test.ts`.                                                                                                                                                                                                                             |
 
-Each layer has its own model of the same thing, and a translation between
-them:
+Each layer has its own model, with a mapping between them:
 
 |              | Data                           | Domain       | UI                                                                  |
 | ------------ | ------------------------------ | ------------ | ------------------------------------------------------------------- |
@@ -62,7 +67,7 @@ them:
 
 State is held by two view models, `HomeViewModel` and `SearchViewModel`. Each
 is a plain class that owns a [zustand](https://zustand.docs.pmnd.rs/) store
-of one state type, so it is tested without rendering anything; components
+of one state type, so it can be tested without rendering; components
 subscribe to the store.
 
 The map is the one component with a version per platform:
@@ -104,10 +109,8 @@ requests, then builds the web app. On `main`, and on demand from the Actions
 tab, it also builds an Android debug APK. Both builds are uploaded as
 workflow artifacts.
 
-`.github/workflows/pages.yml` builds the web app and publishes it to
-`https://calemccammon.github.io/react-native-weather/`. It runs only when
-started by hand from the Actions tab, and needs the repository to be public.
-The base path `/react-native-weather` is set in `app.json`
+`.github/workflows/pages.yml` builds the web app and publishes the live
+demo. It runs only when started by hand from the Actions tab. The base path `/react-native-weather` is set in `app.json`
 (`experiments.baseUrl`).
 
 ## Data and credits
@@ -121,13 +124,12 @@ The base path `/react-native-weather` is set in `app.json`
 
 ## Known limits
 
-- **English only.** The wording is all in `src/l10n/en.json` and weekday
-  names follow the app's language, so a second language is one more file;
-  none has been written.
+- **English only.** All strings are in `src/l10n/en.json` and weekday names
+  follow the app's locale, so adding a language means adding one file.
 - **Places are not saved**: the chosen place is forgotten when the app
   closes. Only the choice of units is kept.
-- **The bottom sheet drags by its handle only.** Its content scrolls, and
-  does not pull the sheet up as it does in Material's own.
+- **The bottom sheet drags by its handle only.** Scrolling its content does
+  not pull the sheet up, as it would in Material's own component.
 - **Very large text** widens the forecast's columns and drops the range bar
   when there is no room, but the rows do not shrink to fit beyond that.
 
@@ -141,5 +143,4 @@ worth doing:
   on each platform.
 - **A second language**, to exercise the localisation set-up.
 - **Rain radar** as a layer over the map.
-- **A signed release build** from CI, and a published web build once the
-  repository is public.
+- **A signed release build** from CI.
