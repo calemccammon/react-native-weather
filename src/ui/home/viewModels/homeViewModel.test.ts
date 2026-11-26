@@ -63,9 +63,7 @@ it('shows a selected place at once, then its forecast', async () => {
 
   expect(state().place).toEqual(placeUiModelFrom(asheville, i18n.t));
   expect(state().forecast).toEqual({ kind: 'loading' });
-  expect(repository.forecastRequests).toEqual([
-    { latitude: 35.6, longitude: -82.55, units: 'imperial' },
-  ]);
+  expect(repository.forecastRequests).toEqual([{ latitude: 35.6, longitude: -82.55 }]);
 
   repository.forecasts[0]?.resolve(sampleForecast());
   await settle();
@@ -175,21 +173,22 @@ describe('units', () => {
     expect(viewModelWith(null).store.getState().units).toBe('celsius');
   });
 
-  it('are saved when changed, and the forecast is asked for again in the new ones', async () => {
+  it('are saved when changed, and the forecast on screen is converted without asking again', async () => {
     viewModel.select(asheville);
     repository.forecasts[0]?.resolve(sampleForecast());
     await settle();
+    expect(temperature(state().forecast)).toBe('36°F');
 
     viewModel.setUnits('celsius');
 
     expect(state().units).toBe('celsius');
-    expect(state().forecast).toEqual({ kind: 'loading' });
-    expect(repository.forecastRequests[1]?.units).toBe('metric');
+    expect(temperature(state().forecast)).toBe('2°C');
+    expect(repository.forecastRequests).toHaveLength(1);
     expect(settings.saved).toEqual(['metric']);
 
-    repository.forecasts[1]?.resolve(sampleForecast());
-    await settle();
-    expect(temperature(state().forecast)).toBe('36°C');
+    viewModel.setUnits('fahrenheit');
+    expect(temperature(state().forecast)).toBe('36°F');
+    expect(repository.forecastRequests).toHaveLength(1);
   });
 
   it('do nothing when the ones already in use are chosen', async () => {
@@ -210,9 +209,6 @@ describe('units', () => {
     expect(state().units).toBe('celsius');
     expect(state().forecast).toEqual({ kind: 'idle' });
     expect(repository.forecastRequests).toEqual([]);
-
-    viewModel.select(asheville);
-    expect(repository.forecastRequests[0]?.units).toBe('metric');
   });
 
   it('still apply when the choice could not be saved', async () => {
@@ -224,16 +220,17 @@ describe('units', () => {
     expect(state().units).toBe('celsius');
   });
 
-  it('do not let a forecast in the old ones replace one in the new', async () => {
+  it('apply to a forecast still on its way, which is not asked for again', async () => {
     viewModel.select(asheville);
     viewModel.setUnits('celsius');
 
-    repository.forecasts[1]?.resolve(sampleForecast());
-    await settle();
+    expect(state().forecast).toEqual({ kind: 'loading' });
+    expect(repository.forecastRequests).toHaveLength(1);
+
     repository.forecasts[0]?.resolve(sampleForecast());
     await settle();
 
-    expect(temperature(state().forecast)).toBe('36°C');
+    expect(temperature(state().forecast)).toBe('2°C');
   });
 });
 

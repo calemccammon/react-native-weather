@@ -232,7 +232,7 @@ describe('forecast', () => {
     ).toBeOnTheScreen();
     expect(
       screen.getByLabelText(
-        'Sunday: Rain, low 29, high 64 degrees, 80 percent chance of precipitation',
+        'Sunday: Rain, low 30, high 64 degrees, 80 percent chance of precipitation',
       ),
     ).toBeOnTheScreen();
   });
@@ -244,9 +244,10 @@ describe('forecast', () => {
 
     await user.press(screen.getByText('°C'));
 
-    expect(await screen.findByText('36°C')).toBeOnTheScreen();
-    expect(screen.getByText('Wind 4 km/h')).toBeOnTheScreen();
-    expect(repository.forecastRequests.at(-1)?.units).toBe('metric');
+    // The forecast already shown is converted: nothing is asked for again.
+    expect(await screen.findByText('2°C')).toBeOnTheScreen();
+    expect(screen.getByText('Wind 7 km/h')).toBeOnTheScreen();
+    expect(repository.forecastRequests).toHaveLength(1);
     await waitFor(() => expect(settings.units).toBe('metric'));
   });
 });
@@ -258,9 +259,7 @@ describe('map', () => {
     await act(async () => mockMap.props?.onLongPress(35.6, -82.55));
 
     expect(screen.getByText('This week')).toBeOnTheScreen();
-    expect(repository.forecastRequests).toEqual([
-      { latitude: 35.6, longitude: -82.55, units: 'imperial' },
-    ]);
+    expect(repository.forecastRequests).toEqual([{ latitude: 35.6, longitude: -82.55 }]);
     expect(mockMap.props?.pin).toEqual({ latitude: 35.6, longitude: -82.55 });
   });
 

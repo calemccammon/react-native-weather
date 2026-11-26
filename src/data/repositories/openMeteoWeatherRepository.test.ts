@@ -29,7 +29,7 @@ const forecastBody = {
   },
 };
 
-const somewhere = { latitude: 35.6, longitude: -82.55, units: 'imperial' as const };
+const somewhere = { latitude: 35.6, longitude: -82.55 };
 
 async function failureOf(promise: Promise<unknown>): Promise<WeatherFailure | undefined> {
   try {
@@ -114,27 +114,18 @@ describe('getting a forecast', () => {
     ]);
   });
 
-  it('asks in the units wanted, on the place’s own clock', async () => {
-    const imperial = answering(forecastBody);
-    await new OpenMeteoWeatherRepository(imperial.fetch).forecast(somewhere);
-    const metric = answering(forecastBody);
-    await new OpenMeteoWeatherRepository(metric.fetch).forecast({ ...somewhere, units: 'metric' });
+  it('asks in metric units, on the place’s own clock', async () => {
+    const { fetch, urls } = answering(forecastBody);
+    await new OpenMeteoWeatherRepository(fetch).forecast(somewhere);
 
-    const sent = imperial.urls[0]!.searchParams;
-    expect(imperial.urls[0]!.origin + imperial.urls[0]!.pathname).toBe(
-      'https://api.open-meteo.com/v1/forecast',
-    );
+    const sent = urls[0]!.searchParams;
+    expect(urls[0]!.origin + urls[0]!.pathname).toBe('https://api.open-meteo.com/v1/forecast');
     expect(sent.get('latitude')).toBe('35.6');
     expect(sent.get('longitude')).toBe('-82.55');
     expect(sent.get('timezone')).toBe('auto');
-    expect([sent.get('temperature_unit'), sent.get('wind_speed_unit')]).toEqual([
-      'fahrenheit',
-      'mph',
-    ]);
-    expect([
-      metric.urls[0]!.searchParams.get('temperature_unit'),
-      metric.urls[0]!.searchParams.get('wind_speed_unit'),
-    ]).toEqual(['celsius', 'kmh']);
+    // Whatever units the user has chosen: the forecast is converted on the
+    // device, so changing units never asks again.
+    expect([sent.get('temperature_unit'), sent.get('wind_speed_unit')]).toEqual(['celsius', 'kmh']);
   });
 
   it('copes without the column of precipitation chances', async () => {

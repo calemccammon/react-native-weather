@@ -1,15 +1,20 @@
-import { allUnits } from '../../../domain/models/units';
+import type { Forecast } from '../../../domain/models/forecast';
+import { allUnits, type Units } from '../../../domain/models/units';
 import { asheville, day, englishWording, sampleForecast } from '../../../testing/fakes';
 import { conditionIcon } from '../../core/weatherConditionUi';
-import { currentUiModelFrom, forecastUiModelFrom } from './forecastUiModel';
+import { forecastUiModelFrom } from './forecastUiModel';
 import { placeUiModelFrom } from './placeUiModel';
 import { unitsUiModelFrom, unitsUiModelToDomain } from './unitsUiModel';
 
 const wording = englishWording();
 
+/** The current conditions of a metric forecast, shown in `units`. */
+const current = (forecast: Forecast, units: Units) =>
+  forecastUiModelFrom(forecast, units, wording).current;
+
 describe('current conditions', () => {
-  it('are rounded, worded and marked with their scale', () => {
-    const imperial = currentUiModelFrom(sampleForecast().current, 'imperial', wording);
+  it('are converted, rounded, worded and marked with their scale', () => {
+    const imperial = current(sampleForecast(), 'imperial');
 
     expect(imperial.temperature).toBe('36°F');
     expect(imperial.condition).toBe('Clear');
@@ -19,15 +24,16 @@ describe('current conditions', () => {
       'Now: Clear, 36 degrees Fahrenheit, feels like 31, wind 4 mph',
     );
 
-    const metric = currentUiModelFrom(sampleForecast().current, 'metric', wording);
-    expect(metric.temperature).toBe('36°C');
-    expect(metric.wind).toBe('Wind 4 km/h');
-    expect(metric.accessibilityLabel).toContain('36 degrees Celsius');
+    const metric = current(sampleForecast(), 'metric');
+    expect(metric.temperature).toBe('2°C');
+    expect(metric.feelsLike).toBe('Feels like -1°');
+    expect(metric.wind).toBe('Wind 7 km/h');
+    expect(metric.accessibilityLabel).toContain('2 degrees Celsius');
   });
 
   it('use the night icon after dark', () => {
-    const night = currentUiModelFrom(sampleForecast({ isDay: false }).current, 'metric', wording);
-    const daytime = currentUiModelFrom(sampleForecast().current, 'metric', wording);
+    const night = current(sampleForecast({ isDay: false }), 'metric');
+    const daytime = current(sampleForecast(), 'metric');
 
     expect(night.icon).toBe(conditionIcon('clear', false));
     expect(daytime.icon).toBe(conditionIcon('clear'));
@@ -45,7 +51,7 @@ describe('the week', () => {
         day(23, 70, 70),
       ],
     }),
-    'imperial',
+    'metric',
     wording,
   );
 
@@ -82,6 +88,24 @@ describe('the week', () => {
       '2026-11-23',
     ]);
   });
+});
+
+it('converts the week to Fahrenheit, keeping each bar where it was', () => {
+  const forecast = sampleForecast({ days: [day(20, 0, 10), day(21, 5, 5, { chance: 30 })] });
+
+  const model = forecastUiModelFrom(forecast, 'imperial', wording);
+
+  expect(model.days.map((each) => [each.low, each.high])).toEqual([
+    ['32°', '50°'],
+    ['41°', '41°'],
+  ]);
+  expect(model.days[1]?.chance).toBe('30%');
+  expect(model.days.map((each) => [each.barStart, each.barEnd])).toEqual(
+    forecastUiModelFrom(forecast, 'metric', wording).days.map((each) => [
+      each.barStart,
+      each.barEnd,
+    ]),
+  );
 });
 
 it('calls no other day Today when today is missing from the list', () => {

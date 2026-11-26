@@ -37,16 +37,14 @@ describe('SearchPlaces', () => {
 });
 
 describe('GetForecast', () => {
-  it('asks for the place in the given units', async () => {
-    await new GetForecast(repository).execute(asheville, 'imperial');
+  it('asks for the place', async () => {
+    await new GetForecast(repository).execute(asheville);
 
-    expect(repository.forecastRequests).toEqual([
-      { latitude: 35.6, longitude: -82.55, units: 'imperial' },
-    ]);
+    expect(repository.forecastRequests).toEqual([{ latitude: 35.6, longitude: -82.55 }]);
   });
 
   it('brings a longitude from a map dragged round the world back into range', async () => {
-    await new GetForecast(repository).execute({ ...asheville, longitude: -82.55 - 720 }, 'metric');
+    await new GetForecast(repository).execute({ ...asheville, longitude: -82.55 - 720 });
 
     expect(repository.forecastRequests[0]?.longitude).toBeCloseTo(-82.55, 9);
   });
@@ -60,7 +58,7 @@ describe('GetForecast', () => {
   ])('refuses a point off the globe (%s) without asking', async (_, latitude, longitude) => {
     const place = { name: 'nowhere', latitude, longitude };
 
-    await expect(new GetForecast(repository).execute(place, 'metric')).rejects.toEqual(
+    await expect(new GetForecast(repository).execute(place)).rejects.toEqual(
       new WeatherError('invalidPlace'),
     );
     expect(repository.forecastRequests).toEqual([]);
