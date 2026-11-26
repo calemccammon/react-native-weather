@@ -22,9 +22,9 @@ export interface HomeViewModelDependencies {
   readonly deviceCountry?: string | null;
 }
 
-/** How the newest forecast request ended. */
+/** How the newest forecast request ended. A loaded forecast is in metric units. */
 type Outcome =
-  | { readonly kind: 'loaded'; readonly forecast: Forecast; readonly units: Units }
+  | { readonly kind: 'loaded'; readonly forecast: Forecast }
   | { readonly kind: 'failed'; readonly error: unknown };
 
 /**
@@ -83,7 +83,7 @@ export class HomeViewModel {
 
   /**
    * Shows forecasts in `units` from now on, and remembers the choice. The
-   * forecast on screen is asked for again in them.
+   * forecast already held is converted, so nothing is asked for again.
    */
   setUnits = (units: UnitsUiModel): void => {
     const chosen = unitsUiModelToDomain(units);
@@ -92,11 +92,7 @@ export class HomeViewModel {
     // Not saved means the next launch starts from the old choice; this one
     // carries on with the new.
     this.dependencies.setUnits.execute(chosen).catch(() => undefined);
-    if (this.place === null) {
-      this.show();
-    } else {
-      void this.load();
-    }
+    this.show();
   };
 
   /** Asks for the selected place's forecast again, after a failure. */
@@ -125,11 +121,10 @@ export class HomeViewModel {
     this.outcome = null;
     this.show();
 
-    const units = this.units;
     let outcome: Outcome;
     try {
-      const forecast = await this.dependencies.getForecast.execute(place, units);
-      outcome = { kind: 'loaded', forecast, units };
+      const forecast = await this.dependencies.getForecast.execute(place);
+      outcome = { kind: 'loaded', forecast };
     } catch (error) {
       outcome = { kind: 'failed', error };
     }
@@ -159,7 +154,7 @@ export class HomeViewModel {
     return outcome.kind === 'loaded'
       ? {
           kind: 'loaded',
-          forecast: forecastUiModelFrom(outcome.forecast, outcome.units, wording),
+          forecast: forecastUiModelFrom(outcome.forecast, this.units, wording),
         }
       : { kind: 'failed', message: messageForError(outcome.error, wording.t) };
   }

@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 
 import {
+  inUnits,
   isToday,
   type CurrentConditions,
   type DailyForecast,
@@ -69,12 +70,16 @@ export interface DayUiModel {
   readonly accessibilityLabel: string;
 }
 
-/** Translates a domain forecast for display in `units`, worded by `wording`. */
+/**
+ * Translates a metric domain forecast for display in `units`, worded by
+ * `wording`. The values are converted before they are rounded.
+ */
 export function forecastUiModelFrom(
-  forecast: Forecast,
+  metricForecast: Forecast,
   units: Units,
   wording: Wording,
 ): ForecastUiModel {
+  const forecast = inUnits(metricForecast, units);
   const { days } = forecast;
   // The whole week's range, so each day's bar shows where it sits in it.
   const weekLow = days.length === 0 ? 0 : Math.min(...days.map((day) => day.low));
@@ -88,7 +93,8 @@ export function forecastUiModelFrom(
   };
 }
 
-export function currentUiModelFrom(
+/** The current conditions, already in `units`. */
+function currentUiModelFrom(
   current: CurrentConditions,
   units: Units,
   { t }: Wording,
@@ -119,7 +125,8 @@ export function currentUiModelFrom(
   };
 }
 
-export function dayUiModelFrom(
+/** One day, already in the units the rest of the forecast is shown in. */
+function dayUiModelFrom(
   day: DailyForecast,
   week: { isToday: boolean; weekLow: number; weekHigh: number },
   { t, language }: Wording,

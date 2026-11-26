@@ -1,6 +1,5 @@
 import type { Forecast } from '../models/forecast';
 import type { Place } from '../models/place';
-import type { Units } from '../models/units';
 
 /**
  * Where the app gets places and forecasts from.
@@ -12,8 +11,8 @@ export interface WeatherRepository {
   /** Places whose name matches `query`, best match first. */
   searchPlaces(query: string): Promise<Place[]>;
 
-  /** Current conditions and the days ahead at a point. */
-  forecast(request: { latitude: number; longitude: number; units: Units }): Promise<Forecast>;
+  /** Current conditions and the days ahead at a point, in metric units. */
+  forecast(request: { latitude: number; longitude: number }): Promise<Forecast>;
 }
 
 /**
